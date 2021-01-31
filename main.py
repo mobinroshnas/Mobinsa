@@ -8,7 +8,7 @@ import sqlite3
 db = sqlite3.connect('database.db')
 cur = db.cursor()
 cur.execute("""CREATE TABLE IF NOT EXISTS users(
-   fname TEXT,);
+   fname TEXT);
 """)
 db.commit()
 def alexa():
