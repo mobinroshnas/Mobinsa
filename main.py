@@ -3,13 +3,31 @@ import speech_recognition as sr
 import webbrowser
 import tkinter as Tkinter
 import os
+import sqlite3
 
+db = sqlite3.connect('database.db')
+cur = db.cursor()
+cur.execute("""CREATE TABLE IF NOT EXISTS users(
+   fname TEXT,);
+""")
+db.commit()
 def alexa():
-
-    r = sr.Recognizer()
     with sr.Microphone() as source:
-
-        talk("how can I help you, sir?")
+        r = sr.Recognizer()
+        cur.execute('''SELECT * FROM users''')
+        user = cur.fetchone()
+        if user == None:
+            talk("whats your name?")
+            voice = r.listen(source)
+            command = r.recognize_google(voice)
+            cur.execute('INSERT INTO users VALUES(?)', (command,))
+            db.commit()
+            talk("tank you")
+        else:
+            cur.execute('''SELECT fname FROM users''')
+            user = cur.fetchone()
+            talks = "Hello," + user[0] + "how can I help you?"
+            talk(talks)
         voice = r.listen(source)
         command = r.recognize_google(voice)
         command = command.lower()
@@ -20,6 +38,12 @@ def alexa():
             webbrowser.open(open)
         if 'hello' in command:
             talk("hello how can I help you")
+        if 'my name is' in command:
+            command = command.replace("my name is" , "")
+            cur.execute('''SELECT fname FROM users''')
+            user = cur.fetchone()
+            cur.execute('UPDATE users SET fname = ? WHERE fname = ?' , (command,user[0]))
+            db.commit()
         if 'translate' in command:
             talk("ok sir")
             open = "https://translate.google.com/"
@@ -59,4 +83,3 @@ greeting = Tkinter.Button(text="Speek", command=alexa, width=25,
     height=5,)
 greeting.pack()
 top.mainloop()
-
