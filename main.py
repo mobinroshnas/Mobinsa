@@ -13,8 +13,6 @@ def alexa():
         voice = r.listen(source)
         command = r.recognize_google(voice)
         command = command.lower()
-        if 'yara' in command:
-            command = command.replace("yara" ,"")
         if 'search' in command:
             talk("ok sir")
             command = command.replace("search" , "")
